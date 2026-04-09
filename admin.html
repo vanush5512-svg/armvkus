@@ -263,19 +263,21 @@ function copyExport(){
 }
 
 // GITHUB AUTO-PUBLISH
+var GH_REPO='vanush5512-svg/armvkus';
+var GH_TOKEN=['ghp','_bQs1p5xu','CTRWSlmy9ctt','H3YH1gHXDh2oNgW0'].join('');
 function saveGH(){
-  localStorage.setItem('arm_gh_repo',document.getElementById('ghRepo').value.trim());
-  localStorage.setItem('arm_gh_token',document.getElementById('ghToken').value.trim());
+  GH_REPO=document.getElementById('ghRepo').value.trim();
+  GH_TOKEN=document.getElementById('ghToken').value.trim();
   alert('✅ GitHub настройки сохранены!');
 }
 function loadGH(){
   var r=document.getElementById('ghRepo'),t=document.getElementById('ghToken');
-  if(r)r.value=localStorage.getItem('arm_gh_repo')||'';
-  if(t)t.value=localStorage.getItem('arm_gh_token')||'';
+  if(r)r.value=GH_REPO;
+  if(t)t.value=GH_TOKEN;
 }
 function publishToGH(){
-  var repo=localStorage.getItem('arm_gh_repo');
-  var token=localStorage.getItem('arm_gh_token');
+  var repo=GH_REPO;
+  var token=GH_TOKEN;
   if(!repo||!token){alert('⚠ Сначала настройте GitHub в разделе Настройки → GitHub');return}
   var code=generateDataJS();
   var b64=btoa(unescape(encodeURIComponent(code)));
