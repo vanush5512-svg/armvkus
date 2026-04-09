@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>АРМвкус — Админ-панель</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--tc:#B85C38;--td:#8B3A1F;--gold:#D4A853;--cream:#F5F0E8;--stone:#2C2419;--sl:#3D3328;--pom:#C23B22;--lav:#E8DCC8;--ok:#4a7c59}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Montserrat',sans-serif;background:#f4f1ec;color:var(--stone);min-height:100vh;display:flex;flex-direction:column}
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.login-box{background:#fff;padding:2.5rem;width:340px;max-width:100%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.08);border-radius:4px}
+.login-box h2{font-size:1.3rem;margin-bottom:.3rem;color:var(--stone)}
+.login-box p{font-size:.8rem;color:var(--sl);margin-bottom:1.5rem}
+.login-box input{width:100%;padding:.8rem;border:1px solid #ddd;font-size:1rem;text-align:center;margin-bottom:.8rem;outline:none;font-family:'Montserrat',sans-serif;border-radius:2px;transition:border .2s}
+.login-box input:focus{border-color:var(--tc)}
+.login-box button{width:100%;padding:.8rem;background:var(--stone);color:#fff;border:none;font-size:.85rem;cursor:pointer;font-family:'Montserrat',sans-serif;letter-spacing:.08em;text-transform:uppercase;border-radius:2px;transition:background .2s}
+.login-box button:hover{background:var(--tc)}
+.login-err{color:var(--pom);font-size:.8rem;margin-top:.5rem;display:none}
+/* PANEL */
+.panel{display:none;flex-direction:column;min-height:100vh}
+.panel.open{display:flex}
+.p-head{background:var(--stone);color:#fff;padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.p-head h1{font-size:1.1rem;font-weight:600}
+.p-head-r{display:flex;gap:.8rem;align-items:center}
+.p-head a,.p-head button{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;padding:.4rem .8rem;font-size:.72rem;cursor:pointer;font-family:'Montserrat',sans-serif;text-decoration:none;border-radius:2px;transition:all .2s;letter-spacing:.05em}
+.p-head a:hover,.p-head button:hover{border-color:var(--gold);color:var(--gold)}
+.p-tabs{display:flex;background:var(--sl);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.p-tab{padding:.7rem 1.2rem;color:var(--lav);cursor:pointer;font-size:.75rem;font-weight:500;border:none;background:none;font-family:'Montserrat',sans-serif;white-space:nowrap;transition:all .2s}
+.p-tab.act{background:#f4f1ec;color:var(--stone)}
+.p-body{flex:1;padding:1.5rem;overflow-y:auto}
+.p-sec{display:none}.p-sec.act{display:block}
+.p-sec h2{font-size:1.1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--gold)}
+/* FORM ELEMENTS */
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-size:.75rem;font-weight:600;margin-bottom:.25rem;color:var(--sl)}
+.fg input,.fg select,.fg textarea{width:100%;padding:.55rem .7rem;border:1px solid #ddd;font-family:'Montserrat',sans-serif;font-size:.82rem;outline:none;border-radius:2px;transition:border .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--tc)}
+.fg textarea{resize:vertical;min-height:45px}
+.fg small{font-size:.7rem;color:var(--sl);opacity:.6}
+.fg input[type=file]{padding:.4rem;font-size:.75rem}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.fb{padding:.55rem 1.2rem;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-radius:2px;transition:all .2s;display:inline-block;margin-right:.4rem;margin-top:.4rem}
+.fb-p{background:var(--tc);color:#fff}.fb-p:hover{background:var(--td)}
+.fb-s{background:var(--stone);color:#fff}.fb-s:hover{background:var(--sl)}
+.fb-d{background:var(--pom);color:#fff}.fb-d:hover{background:#a03020}
+.fb-g{background:var(--ok);color:#fff}.fb-g:hover{background:#3d6b4a}
+/* CARD FORM */
+.cf{background:#fff;padding:1.2rem;margin-bottom:1rem;border:1px solid #ddd;border-radius:4px}
+.cf h3{font-size:.9rem;margin-bottom:.8rem;color:var(--tc)}
+/* TABLE */
+.tb{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.8rem;background:#fff;border-radius:4px;overflow:hidden}
+.tb th{background:var(--stone);color:#fff;padding:.6rem .7rem;text-align:left;font-weight:500;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.tb td{padding:.5rem .7rem;border-bottom:1px solid #eee;vertical-align:middle}
+.tb tr:hover td{background:rgba(44,36,25,.02)}
+.tb img{width:36px;height:36px;object-fit:cover;border-radius:3px}
+.st-new{color:var(--pom);font-weight:700}.st-proc{color:var(--gold);font-weight:700}.st-done{color:var(--ok);font-weight:700}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-c{background:#fff;padding:1rem;border-radius:4px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.stat-c h3{font-size:1.8rem;color:var(--tc);margin-bottom:.2rem}.stat-c p{font-size:.72rem;color:var(--sl);text-transform:uppercase;letter-spacing:.08em}
+/* RESPONSIVE */
+@media(max-width:768px){.fr{grid-template-columns:1fr}.tb{font-size:.7rem;display:block;overflow-x:auto}.stats{grid-template-columns:1fr 1fr}.p-body{padding:1rem}}
+@media(max-width:500px){.p-head{padding:.6rem 1rem}.p-head h1{font-size:.95rem}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h2>🔐 Админ-панель</h2>
+    <p>АРМвкус — управление сайтом</p>
+    <input type="password" id="pwd" placeholder="Пароль" autofocus onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Войти</button>
+    <div class="login-err" id="loginErr">Неверный пароль</div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div class="panel" id="panel">
+  <div class="p-head">
+    <h1>⚙ АРМвкус — Админ</h1>
+    <div class="p-head-r">
+      <a href="index.html" target="_blank">🌐 Открыть сайт</a>
+      <button onclick="doLogout()">🚪 Выйти</button>
+    </div>
+  </div>
+  <div class="p-tabs">
+    <button class="p-tab act" onclick="tab(this,'tCats')">📂 Категории</button>
+    <button class="p-tab" onclick="tab(this,'tProds')">🍽 Товары</button>
+    <button class="p-tab" onclick="tab(this,'tDel')">🚚 Доставка</button>
+    <button class="p-tab" onclick="tab(this,'tSet')">⚙ Настройки</button>
+  </div>
+  <div class="p-body">
+
+    <!-- CATEGORIES -->
+    <div class="p-sec act" id="tCats">
+      <h2>📂 Категории</h2>
+      <button class="fb fb-p" onclick="catForm(0)">+ Добавить категорию</button>
+      <div id="catFA"></div>
+      <table class="tb"><thead><tr><th>Иконка</th><th>Название</th><th>Описание</th><th></th></tr></thead><tbody id="catBody"></tbody></table>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="p-sec" id="tProds">
+      <h2>🍽 Товары</h2>
+      <button class="fb fb-p" onclick="prodForm(0)">+ Добавить товар</button>
+      <div id="prodFA"></div>
+      <table class="tb"><thead><tr><th>Фото</th><th>Название</th><th>Категория</th><th>Цена</th><th>Бейдж</th><th></th></tr></thead><tbody id="prodBody"></tbody></table>
+    </div>
+
+    <!-- DELIVERY -->
+    <div class="p-sec" id="tDel">
+      <h2>🚚 Доставка</h2>
+      <div style="max-width:500px">
+        <div class="fg"><label>Минимальная сумма заказа (₽)</label><input id="dMin" type="number"></div>
+        <div class="fg"><label>Стоимость доставки (₽, 0 = бесплатно)</label><input id="dPrice" type="number"></div>
+        <div class="fg"><label>Бесплатная доставка от (₽)</label><input id="dFree" type="number"></div>
+        <div class="fg"><label>Время доставки</label><input id="dTime" placeholder="30–60 минут"></div>
+        <button class="fb fb-s" onclick="saveDel()">💾 Сохранить</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="p-sec" id="tSet">
+      <h2>⚙ Настройки</h2>
+      <div style="max-width:500px">
+        <div class="fg"><label>Город</label><input id="sCity"></div>
+        <div class="fg"><label>Телефон</label><input id="sPhone"></div>
+        <div class="fg"><label>Режим работы</label><input id="sHours"></div>
+        <div class="fg"><label>Пароль админки</label><input id="sPwd" type="text"></div>
+        <button class="fb fb-s" onclick="saveSet()">💾 Сохранить</button>
+      </div>
+      <h3 style="margin-top:2rem;border-top:2px solid var(--gold);padding-top:1rem">📤 Экспорт данных</h3>
+      <p style="font-size:.8rem;color:var(--sl);margin-bottom:1rem">Нажми кнопку ниже, скопируй код и замени содержимое файла data.js на хостинге</p>
+      <button class="fb fb-p" onclick="exportData()">📋 Сгенерировать data.js</button>
+      <div id="exportArea" style="display:none;margin-top:1rem">
+        <textarea id="exportCode" style="width:100%;height:300px;font-family:monospace;font-size:.7rem" readonly></textarea>
+        <button class="fb fb-g" onclick="copyExport()">📋 Копировать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+function doLogin(){
+  var s=ARM.settings();
+  if(document.getElementById('pwd').value===s.pwd){
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('panel').classList.add('open');
+    render();
+  }else{document.getElementById('loginErr').style.display='block'}
+}
+function doLogout(){document.getElementById('panel').classList.remove('open');document.getElementById('loginWrap').style.display='';document.getElementById('pwd').value='';document.getElementById('loginErr').style.display='none'}
+function tab(el,id){document.querySelectorAll('.p-tab').forEach(function(t){t.classList.remove('act')});document.querySelectorAll('.p-sec').forEach(function(s){s.classList.remove('act')});el.classList.add('act');document.getElementById(id).classList.add('act')}
+
+function render(){
+  var cats=ARM.cats(),prods=ARM.prods(),del=ARM.del(),s=ARM.settings();
+
+  // Categories
+  document.getElementById('catBody').innerHTML=cats.map(function(c){return '<tr><td style="font-size:1.5rem">'+c.icon+'</td><td><b>'+c.name+'</b></td><td>'+c.desc+'</td><td style="white-space:nowrap"><button class="fb fb-s" style="font-size:.65rem;padding:.25rem .5rem" onclick="catForm('+c.id+')">✏️</button> <button class="fb fb-d" style="font-size:.65rem;padding:.25rem .5rem" onclick="delCat('+c.id+')">🗑</button></td></tr>'}).join('');
+
+  // Products
+  document.getElementById('prodBody').innerHTML=prods.map(function(p){
+    var cn=(cats.find(function(c){return c.id===p.catId})||{}).name||'—';
+    var img=p.img?'<img src="'+p.img+'">':'<span style="font-size:1.3rem">'+p.emoji+'</span>';
+    return '<tr><td>'+img+'</td><td><b>'+p.name+'</b><br><small style="opacity:.5">'+p.weight+'</small></td><td>'+cn+'</td><td><b>'+p.price+'₽</b></td><td>'+(p.badge||'—')+'</td><td style="white-space:nowrap"><button class="fb fb-s" style="font-size:.65rem;padding:.25rem .5rem" onclick="prodForm('+p.id+')">✏️</button> <button class="fb fb-d" style="font-size:.65rem;padding:.25rem .5rem" onclick="delProd('+p.id+')">🗑</button></td></tr>'
+  }).join('');
+
+  // Delivery
+  document.getElementById('dMin').value=del.min;
+  document.getElementById('dPrice').value=del.price;
+  document.getElementById('dFree').value=del.free;
+  document.getElementById('dTime').value=del.time;
+
+  // Settings
+  document.getElementById('sCity').value=s.city;
+  document.getElementById('sPhone').value=s.phone;
+  document.getElementById('sHours').value=s.hours;
+  document.getElementById('sPwd').value=s.pwd;
+}
+
+// CATEGORY
+function catForm(id){
+  var c=id?ARM.cats().find(function(x){return x.id===id}):null;
+  document.getElementById('catFA').innerHTML='<div class="cf"><h3>'+(id?'✏️ Редактировать':'➕ Новая категория')+'</h3><div class="fr"><div class="fg"><label>Иконка (эмодзи)</label><input id="cIcon" value="'+(c?c.icon:'🍽')+'" maxlength="4"></div><div class="fg"><label>Название</label><input id="cName" value="'+(c?c.name:'')+'"></div></div><div class="fg"><label>Описание</label><input id="cDesc" value="'+(c?c.desc:'')+'"></div><button class="fb fb-g" onclick="saveCat('+id+')">💾 Сохранить</button> <button class="fb fb-d" onclick="document.getElementById(\'catFA\').innerHTML=\'\'">Отмена</button></div>';
+}
+function saveCat(id){
+  var icon=document.getElementById('cIcon').value.trim()||'🍽',name=document.getElementById('cName').value.trim(),desc=document.getElementById('cDesc').value.trim();
+  if(!name){alert('Введите название!');return}
+  var cats=ARM.cats();
+  if(id){var c=cats.find(function(x){return x.id===id});if(c){c.icon=icon;c.name=name;c.desc=desc}}
+  else cats.push({id:Date.now(),icon:icon,name:name,desc:desc});
+  ARM.cats(cats);document.getElementById('catFA').innerHTML='';render();
+}
+function delCat(id){if(!confirm('Удалить категорию и все товары в ней?'))return;var cats=ARM.cats().filter(function(c){return c.id!==id});var prods=ARM.prods().filter(function(p){return p.catId!==id});ARM.cats(cats);ARM.prods(prods);render()}
+
+// PRODUCT
+function prodForm(id){
+  var p=id?ARM.prods().find(function(x){return x.id===id}):null;
+  var opts=ARM.cats().map(function(c){return '<option value="'+c.id+'"'+(p&&p.catId===c.id?' selected':'')+'>'+c.name+'</option>'}).join('');
+  document.getElementById('prodFA').innerHTML='<div class="cf"><h3>'+(id?'✏️ Редактировать':'➕ Новый товар')+'</h3><div class="fr"><div class="fg"><label>Название *</label><input id="pName" value="'+(p?p.name:'')+'"></div><div class="fg"><label>Категория *</label><select id="pCat">'+opts+'</select></div></div><div class="fr"><div class="fg"><label>Цена (₽) *</label><input id="pPrice" type="number" value="'+(p?p.price:'')+'"></div><div class="fg"><label>Вес / объём</label><input id="pWeight" value="'+(p?p.weight:'')+'"></div></div><div class="fr"><div class="fg"><label>Эмодзи (если нет фото)</label><input id="pEmoji" value="'+(p?p.emoji:'🍽')+'" maxlength="4"></div><div class="fg"><label>Бейдж (Хит, Новинка...)</label><input id="pBadge" value="'+(p?p.badge||'':'')+'"></div></div><div class="fg"><label>Описание</label><textarea id="pDesc">'+(p?p.desc:'')+'</textarea></div><div class="fg"><label>Картинка — URL или загрузите файл</label><input id="pImg" value="'+(p?p.img||'':'')+'" placeholder="https://..."><input type="file" id="pImgFile" accept="image/*" onchange="loadFile(this)" style="margin-top:.4rem"><small>Поддерживаются jpg, png, webp. Файл сохранится в браузере.</small></div>'+(p&&p.img?'<div style="margin:.5rem 0"><img src="'+p.img+'" style="max-height:80px;border-radius:4px"> <button class="fb fb-d" style="font-size:.65rem;padding:.2rem .5rem" onclick="document.getElementById(\'pImg\').value=\'\'">Убрать фото</button></div>':'')+'<button class="fb fb-g" onclick="saveProd('+id+')">💾 Сохранить</button> <button class="fb fb-d" onclick="document.getElementById(\'prodFA\').innerHTML=\'\'">Отмена</button></div>';
+}
+function loadFile(inp){
+  if(inp.files&&inp.files[0]){
+    if(inp.files[0].size>2*1024*1024){alert('Файл слишком большой (макс 2МБ). Сожмите картинку.');return}
+    var r=new FileReader();r.onload=function(e){document.getElementById('pImg').value=e.target.result};r.readAsDataURL(inp.files[0]);
+  }
+}
+function saveProd(id){
+  var obj={name:document.getElementById('pName').value.trim(),catId:parseInt(document.getElementById('pCat').value),price:parseInt(document.getElementById('pPrice').value)||0,weight:document.getElementById('pWeight').value.trim(),emoji:document.getElementById('pEmoji').value.trim()||'🍽',badge:document.getElementById('pBadge').value.trim(),desc:document.getElementById('pDesc').value.trim(),img:document.getElementById('pImg').value.trim()};
+  if(!obj.name||!obj.price){alert('Заполните название и цену!');return}
+  var prods=ARM.prods();
+  if(id){var p=prods.find(function(x){return x.id===id});if(p)Object.assign(p,obj)}
+  else{obj.id=Date.now();prods.push(obj)}
+  ARM.prods(prods);document.getElementById('prodFA').innerHTML='';render();
+}
+function delProd(id){if(!confirm('Удалить товар?'))return;ARM.prods(ARM.prods().filter(function(p){return p.id!==id}));render()}
+
+// DELIVERY / SETTINGS
+function saveDel(){ARM.del({min:parseInt(document.getElementById('dMin').value)||0,price:parseInt(document.getElementById('dPrice').value)||0,free:parseInt(document.getElementById('dFree').value)||0,time:document.getElementById('dTime').value.trim()||'30–60 минут'});alert('✅ Сохранено!')}
+function saveSet(){ARM.settings({city:document.getElementById('sCity').value.trim()||'Аркадак',phone:document.getElementById('sPhone').value.trim(),hours:document.getElementById('sHours').value.trim(),pwd:document.getElementById('sPwd').value.trim()||'123123'});alert('✅ Сохранено!')}
+
+// EXPORT DATA
+function exportData(){
+  var cats=ARM.cats(),prods=ARM.prods(),del=ARM.del(),s=ARM.settings();
+  var code='// АРМвкус - Data Layer\nvar ARM={\n';
+  code+='  _g:function(k,d){try{var v=localStorage.getItem(\'arm_\'+k);return v?JSON.parse(v):d}catch(e){return d}},\n';
+  code+='  _s:function(k,v){try{localStorage.setItem(\'arm_\'+k,JSON.stringify(v))}catch(e){}},\n';
+  code+='  cats:function(v){return v!==undefined?(this._s(\'cats\',v),v):this._g(\'cats\','+JSON.stringify(cats)+')},\n';
+  code+='  prods:function(v){return v!==undefined?(this._s(\'prods\',v),v):this._g(\'prods\','+JSON.stringify(prods)+')},\n';
+  code+='  orders:function(v){return v!==undefined?(this._s(\'orders\',v),v):this._g(\'orders\',[])},\n';
+  code+='  del:function(v){return v!==undefined?(this._s(\'del\',v),v):this._g(\'del\','+JSON.stringify(del)+')},\n';
+  code+='  settings:function(v){return v!==undefined?(this._s(\'settings\',v),v):this._g(\'settings\','+JSON.stringify(s)+')}\n';
+  code+='};';
+  document.getElementById('exportCode').value=code;
+  document.getElementById('exportArea').style.display='block';
+}
+function copyExport(){
+  var ta=document.getElementById('exportCode');
+  ta.select();
+  document.execCommand('copy');
+  alert('✅ Код скопирован! Теперь замени содержимое файла data.js на хостинге.');
+}
+</script>
+</body>
+</html>
