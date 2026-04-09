@@ -85,6 +85,7 @@ body{font-family:'Montserrat',sans-serif;background:#f4f1ec;color:var(--stone);m
   <div class="p-head">
     <h1>⚙ АРМвкус — Админ</h1>
     <div class="p-head-r">
+      <button onclick="publishToGH()" style="border-color:var(--ok);color:#7fff7f">🚀 Опубликовать</button>
       <a href="index.html" target="_blank">🌐 Открыть сайт</a>
       <button onclick="doLogout()">🚪 Выйти</button>
     </div>
@@ -135,8 +136,15 @@ body{font-family:'Montserrat',sans-serif;background:#f4f1ec;color:var(--stone);m
         <div class="fg"><label>Пароль админки</label><input id="sPwd" type="text"></div>
         <button class="fb fb-s" onclick="saveSet()">💾 Сохранить</button>
       </div>
-      <h3 style="margin-top:2rem;border-top:2px solid var(--gold);padding-top:1rem">📤 Экспорт данных</h3>
-      <p style="font-size:.8rem;color:var(--sl);margin-bottom:1rem">Нажми кнопку ниже, скопируй код и замени содержимое файла data.js на хостинге</p>
+      <h3 style="margin-top:2rem;border-top:2px solid var(--gold);padding-top:1rem">� GitHub (автопубликация)</h3>
+      <p style="font-size:.8rem;color:var(--sl);margin-bottom:1rem">Настройте для публикации изменений на сайт одной кнопкой 🚀</p>
+      <div style="max-width:500px">
+        <div class="fg"><label>Репозиторий (owner/repo)</label><input id="ghRepo" placeholder="vanush5512-svg/armvkus"></div>
+        <div class="fg"><label>GitHub Token</label><input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxx"><br><small><a href="https://github.com/settings/tokens/new" target="_blank">Создать токен</a> — отметьте галочку "repo"</small></div>
+        <button class="fb fb-s" onclick="saveGH()">💾 Сохранить GitHub</button>
+      </div>
+      <h3 style="margin-top:2rem;border-top:2px solid var(--gold);padding-top:1rem">�📤 Экспорт данных (ручной)</h3>
+      <p style="font-size:.8rem;color:var(--sl);margin-bottom:1rem">Альтернативный способ — скопируй код и замени data.js вручную</p>
       <button class="fb fb-p" onclick="exportData()">📋 Сгенерировать data.js</button>
       <div id="exportArea" style="display:none;margin-top:1rem">
         <textarea id="exportCode" style="width:100%;height:300px;font-family:monospace;font-size:.7rem" readonly></textarea>
@@ -148,6 +156,7 @@ body{font-family:'Montserrat',sans-serif;background:#f4f1ec;color:var(--stone);m
 
 <script src="data.js"></script>
 <script>
+ARM._admin=true;
 function doLogin(){
   var s=ARM.settings();
   if(document.getElementById('pwd').value===s.pwd){
@@ -183,6 +192,7 @@ function render(){
   document.getElementById('sPhone').value=s.phone;
   document.getElementById('sHours').value=s.hours;
   document.getElementById('sPwd').value=s.pwd;
+  loadGH();
 }
 
 // CATEGORY
@@ -226,19 +236,23 @@ function delProd(id){if(!confirm('Удалить товар?'))return;ARM.prods(
 function saveDel(){ARM.del({min:parseInt(document.getElementById('dMin').value)||0,price:parseInt(document.getElementById('dPrice').value)||0,free:parseInt(document.getElementById('dFree').value)||0,time:document.getElementById('dTime').value.trim()||'30–60 минут'});alert('✅ Сохранено!')}
 function saveSet(){ARM.settings({city:document.getElementById('sCity').value.trim()||'Аркадак',phone:document.getElementById('sPhone').value.trim(),hours:document.getElementById('sHours').value.trim(),pwd:document.getElementById('sPwd').value.trim()||'123123'});alert('✅ Сохранено!')}
 
-// EXPORT DATA
-function exportData(){
+// GENERATE DATA.JS
+function generateDataJS(){
   var cats=ARM.cats(),prods=ARM.prods(),del=ARM.del(),s=ARM.settings();
   var code='// АРМвкус - Data Layer\nvar ARM={\n';
-  code+='  _g:function(k,d){try{var v=localStorage.getItem(\'arm_\'+k);return v?JSON.parse(v):d}catch(e){return d}},\n';
-  code+='  _s:function(k,v){try{localStorage.setItem(\'arm_\'+k,JSON.stringify(v))}catch(e){}},\n';
+  code+='  _admin:false,\n';
+  code+='  _g:function(k,d){if(!this._admin)return d;try{var v=localStorage.getItem(\'arm_\'+k);return v?JSON.parse(v):d}catch(e){return d}},\n';
+  code+='  _s:function(k,v){if(!this._admin)return;try{localStorage.setItem(\'arm_\'+k,JSON.stringify(v))}catch(e){}},\n';
   code+='  cats:function(v){return v!==undefined?(this._s(\'cats\',v),v):this._g(\'cats\','+JSON.stringify(cats)+')},\n';
   code+='  prods:function(v){return v!==undefined?(this._s(\'prods\',v),v):this._g(\'prods\','+JSON.stringify(prods)+')},\n';
   code+='  orders:function(v){return v!==undefined?(this._s(\'orders\',v),v):this._g(\'orders\',[])},\n';
   code+='  del:function(v){return v!==undefined?(this._s(\'del\',v),v):this._g(\'del\','+JSON.stringify(del)+')},\n';
   code+='  settings:function(v){return v!==undefined?(this._s(\'settings\',v),v):this._g(\'settings\','+JSON.stringify(s)+')}\n';
   code+='};';
-  document.getElementById('exportCode').value=code;
+  return code;
+}
+function exportData(){
+  document.getElementById('exportCode').value=generateDataJS();
   document.getElementById('exportArea').style.display='block';
 }
 function copyExport(){
@@ -246,6 +260,37 @@ function copyExport(){
   ta.select();
   document.execCommand('copy');
   alert('✅ Код скопирован! Теперь замени содержимое файла data.js на хостинге.');
+}
+
+// GITHUB AUTO-PUBLISH
+function saveGH(){
+  localStorage.setItem('arm_gh_repo',document.getElementById('ghRepo').value.trim());
+  localStorage.setItem('arm_gh_token',document.getElementById('ghToken').value.trim());
+  alert('✅ GitHub настройки сохранены!');
+}
+function loadGH(){
+  var r=document.getElementById('ghRepo'),t=document.getElementById('ghToken');
+  if(r)r.value=localStorage.getItem('arm_gh_repo')||'';
+  if(t)t.value=localStorage.getItem('arm_gh_token')||'';
+}
+function publishToGH(){
+  var repo=localStorage.getItem('arm_gh_repo');
+  var token=localStorage.getItem('arm_gh_token');
+  if(!repo||!token){alert('⚠ Сначала настройте GitHub в разделе Настройки → GitHub');return}
+  var code=generateDataJS();
+  var b64=btoa(unescape(encodeURIComponent(code)));
+  fetch('https://api.github.com/repos/'+repo+'/contents/data.js',{
+    headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){return r.json()}).then(function(info){
+    return fetch('https://api.github.com/repos/'+repo+'/contents/data.js',{
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+      body:JSON.stringify({message:'Update data from admin panel',content:b64,sha:info.sha})
+    });
+  }).then(function(r){
+    if(r.ok){alert('✅ Опубликовано! Сайт обновится через 1-2 минуты.')}
+    else{r.json().then(function(e){alert('❌ Ошибка: '+(e.message||'Неизвестная ошибка'))})}
+  }).catch(function(e){alert('❌ Ошибка сети: '+e.message)});
 }
 </script>
 </body>

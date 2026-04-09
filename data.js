@@ -1,7 +1,8 @@
 // АРМвкус - Data Layer
 var ARM={
-  _g:function(k,d){try{var v=localStorage.getItem('arm_'+k);return v?JSON.parse(v):d}catch(e){return d}},
-  _s:function(k,v){try{localStorage.setItem('arm_'+k,JSON.stringify(v))}catch(e){}},
+  _admin:false,
+  _g:function(k,d){if(!this._admin)return d;try{var v=localStorage.getItem('arm_'+k);return v?JSON.parse(v):d}catch(e){return d}},
+  _s:function(k,v){if(!this._admin)return;try{localStorage.setItem('arm_'+k,JSON.stringify(v))}catch(e){}},
   cats:function(v){return v!==undefined?(this._s('cats',v),v):this._g('cats',[
     {id:1,icon:'🥩',name:'Мясные блюда',desc:'Хоровац, кебаб, бастурма'},
     {id:2,icon:'🍲',name:'Супы',desc:'Хаш, спас, бозбаш'},
