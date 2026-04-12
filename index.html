@@ -121,6 +121,13 @@ section{padding:4rem 1.5rem}
 .feat-i h4{font-family:'Playfair Display',serif;font-size:.85rem;margin-bottom:.1rem}
 .feat-i p{font-size:.68rem;opacity:.75}
 
+/* BIRTHDAY */
+.bday-banner{background:linear-gradient(135deg,#fff8f0,#fff3e0);padding:2rem 1.5rem;text-align:center;border-top:2px solid var(--gold);border-bottom:2px solid var(--gold)}
+.bday-banner .bday-ic{font-size:2.5rem;margin-bottom:.5rem}
+.bday-banner h3{font-family:'Playfair Display',serif;font-size:clamp(1.1rem,2.5vw,1.5rem);color:var(--tc);margin-bottom:.4rem}
+.bday-banner p{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--sl);max-width:600px;margin:0 auto;line-height:1.5}
+.bday-banner .bday-note{font-size:.8rem;color:var(--sl);opacity:.7;margin-top:.5rem}
+
 /* REVIEWS */
 .rev-g{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem}
 .rev-c{background:#fff;padding:1.3rem;border:1px solid rgba(44,36,25,.05)}
@@ -274,6 +281,14 @@ section{padding:4rem 1.5rem}
   </div>
 </div>
 
+<!-- BIRTHDAY DISCOUNT -->
+<div class="bday-banner rv">
+  <div class="bday-ic">🎂</div>
+  <h3>Скидка 10% в день рождения!</h3>
+  <p>У вас день рождения? Получите <b>10%</b> скидку на любой заказ! Просто покажите паспорт курьеру при получении.</p>
+  <p class="bday-note">Акция действует в день рождения при предъявлении паспорта</p>
+</div>
+
 <!-- REVIEWS -->
 <section id="reviews">
   <div class="sh rv"><div class="s-tag">Отзывы</div><h2 class="s-title">Что говорят гости</h2><div class="s-line"></div></div>
@@ -351,13 +366,15 @@ function renderSite(){
   var fc=document.getElementById('floatCall');if(fc)fc.href='tel:'+phClean;
   // Hours, city
   document.getElementById('ftHours').textContent=s.hours;
-  document.querySelectorAll('[id^="ftCity"]').forEach(function(el){el.textContent=s.city});
-  document.getElementById('heroBadge').textContent='🏔 Доставка по '+s.city;
-  document.getElementById('featDel').textContent=del.time+' по '+s.city;
+  var cityDat=s.city+'у';
+  var ftC=document.getElementById('ftCity');if(ftC)ftC.textContent=cityDat;
+  var ftC2=document.getElementById('ftCity2');if(ftC2)ftC2.textContent=s.city;
+  document.getElementById('heroBadge').textContent='🏔 Доставка по '+cityDat;
+  document.getElementById('featDel').textContent=del.time+' по '+cityDat;
   // Delivery bar
   var db=document.getElementById('delBar');
-  db.innerHTML='<span>🚚 Доставка по <b>'+s.city+'</b> — '+del.time+'</span><span>'+(del.price>0?'Стоимость <b>'+del.price+' ₽</b>, бесплатно от <b>'+del.free+' ₽</b>':'<b>Бесплатная доставка!</b>')+'</span><span>📞 <b>'+ph+'</b></span>';
-  document.getElementById('ctaDel').textContent=del.price>0?'Доставка '+del.price+' ₽, бесплатно от '+del.free+' ₽':'Бесплатная доставка по '+s.city+'!';
+  db.innerHTML='<span>🚚 Доставка по <b>'+cityDat+'</b> — '+del.time+'</span><span>'+(del.price>0?'Стоимость <b>'+del.price+' ₽</b>, бесплатно от <b>'+del.free+' ₽</b>':'<b>Бесплатная доставка!</b>')+'</span><span>📞 <b>'+ph+'</b></span>';
+  document.getElementById('ctaDel').textContent=del.price>0?'Доставка '+del.price+' ₽, бесплатно от '+del.free+' ₽':'Бесплатная доставка по '+cityDat+'!';
   // Categories
   var cg=document.getElementById('catGrid');
   cg.innerHTML='<div class="cat-c rv v'+(curCat===0?' act':'')+'" onclick="filterCat(0)"><div class="cat-ic">🍽</div><h3>Все</h3><p>Всё меню</p></div>'+cats.map(function(c){return '<div class="cat-c rv v'+(curCat===c.id?' act':'')+'" onclick="filterCat('+c.id+')"><div class="cat-ic">'+c.icon+'</div><h3>'+c.name+'</h3><p>'+c.desc+'</p></div>'}).join('');
